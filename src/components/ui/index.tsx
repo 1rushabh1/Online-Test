@@ -187,6 +187,7 @@ export function Badge({ children, color = 'ink' }: BadgeProps) {
 interface AlertProps {
   type?: 'error' | 'success' | 'info' | 'warning';
   children: React.ReactNode;
+  className?: string; // ✅ ADD THIS
 }
 
 const alertStyles = {
@@ -196,18 +197,16 @@ const alertStyles = {
   warning: { bg: 'rgba(217,119,6,0.08)', border: 'rgba(217,119,6,0.3)', color: '#92400e', icon: '!' },
 };
 
-export function Alert({ type = 'info', children }: AlertProps) {
-  const s = alertStyles[type];
-  return (
-    <div
-      className="flex items-start gap-2 px-4 py-3 rounded border text-sm"
-      style={{ backgroundColor: s.bg, borderColor: s.border, color: s.color }}
-    >
-      <span className="font-bold mt-0.5 flex-shrink-0">{s.icon}</span>
-      <div>{children}</div>
-    </div>
-  );
+export function Alert({ type = 'info', children, className = '' }: AlertProps) {
+const s = alertStyles[type];
+return (
+<div
+className={`flex items-start gap-2 px-4 py-3 rounded border text-sm ${className}`}
+style={{ backgroundColor: s.bg, borderColor: s.border, color: s.color }}
+> <span className="font-bold mt-0.5 flex-shrink-0">{s.icon}</span> <div>{children}</div> </div>
+);
 }
+
 
 // ── Spinner ───────────────────────────────────────────────
 export function Spinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
