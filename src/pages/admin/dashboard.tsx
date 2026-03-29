@@ -5,6 +5,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Layout from '@/components/ui/Layout';
 import { Card, Badge, StatCard, Spinner, Button } from '@/components/ui';
+import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
@@ -29,7 +30,10 @@ export default function AdminDashboard() {
       fetch('/api/tests'),
       fetch('/api/attempts'),
     ]);
-    const [testsData, attemptsData] = await Promise.all([testsRes.json(), attemptsRes.json()]);
+    const [testsData, attemptsData] = await Promise.all([
+      testsRes.json(),
+      attemptsRes.json(),
+    ]);
     setTests(testsData.tests || []);
     setAttempts(attemptsData.attempts || []);
     setLoading(false);
@@ -42,16 +46,22 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <Layout title="Dashboard">
-        <div className="flex justify-center py-20"><Spinner size="lg" /></div>
+        <div className="flex justify-center py-20">
+          <Spinner size="lg" />
+        </div>
       </Layout>
     );
   }
 
   return (
     <>
-      <Head><title>Admin Dashboard — ExamPortal</title></Head>
+      <Head>
+        <title>Admin Dashboard — ExamPortal</title>
+      </Head>
+
       <Layout title="Dashboard">
         <div className="space-y-8 animate-fade-in">
+
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard label="Total Tests" value={tests.length} />
@@ -75,14 +85,15 @@ export default function AdminDashboard() {
 
           {/* Recent tests */}
           <div>
-            <h2 className="font-display text-xl font-semibold mb-4" style={{ color: 'var(--color-ink)' }}>
+            <h2 className="font-display text-xl font-semibold mb-4">
               Recent Tests
             </h2>
+
             {tests.length === 0 ? (
               <Card>
-                <p className="text-center py-8" style={{ color: 'var(--color-ink-muted)' }}>
+                <p className="text-center py-8">
                   No tests yet.{' '}
-                  <Link href="/admin/tests/new" className="underline font-medium" style={{ color: 'var(--color-ink)' }}>
+                  <Link href="/admin/tests/new" className="underline font-medium">
                     Create your first test
                   </Link>
                 </p>
@@ -93,22 +104,31 @@ export default function AdminDashboard() {
                   <Card key={test.id} className="flex items-center justify-between gap-4">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-medium truncate" style={{ color: 'var(--color-ink)' }}>
+                        <h3 className="font-medium truncate">
                           {test.title}
                         </h3>
-                        <Badge color={test.status === 'published' ? 'emerald' : test.status === 'draft' ? 'amber' : 'ink'}>
+                        <Badge
+                          color={
+                            test.status === 'published'
+                              ? 'emerald'
+                              : test.status === 'draft'
+                              ? 'amber'
+                              : 'ink'
+                          }
+                        >
                           {test.status}
                         </Badge>
                       </div>
-                      <p className="text-xs" style={{ color: 'var(--color-ink-muted)' }}>
+                      <p className="text-xs">
                         {test.question_count} questions · {test.duration_minutes} min
                       </p>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <Link href={`/admin/tests/${test.id}`}>
-                        <Button variant="secondary" size="sm">Edit</Button>
-                      </Link>
-                    </div>
+
+                    <Link href={`/admin/tests/${test.id}`}>
+                      <Button variant="secondary" size="sm">
+                        Edit
+                      </Button>
+                    </Link>
                   </Card>
                 ))}
               </div>
@@ -118,31 +138,49 @@ export default function AdminDashboard() {
           {/* Recent submissions */}
           {attempts.length > 0 && (
             <div>
-              <h2 className="font-display text-xl font-semibold mb-4" style={{ color: 'var(--color-ink)' }}>
+              <h2 className="font-display text-xl font-semibold mb-4">
                 Recent Submissions
               </h2>
+
               <div className="grid gap-3">
                 {attempts.slice(0, 5).map((a) => (
                   <Card key={a.id} className="flex items-center justify-between gap-4">
                     <div>
-                      <p className="font-medium text-sm" style={{ color: 'var(--color-ink)' }}>
+                      <p className="font-medium text-sm">
                         {a.user_name}
-                        <span className="ml-2 text-xs font-normal" style={{ color: 'var(--color-ink-muted)' }}>
+                        <span className="ml-2 text-xs font-normal">
                           {a.user_email}
                         </span>
                       </p>
-                      <p className="text-xs mt-0.5" style={{ color: 'var(--color-ink-muted)' }}>
+                      <p className="text-xs mt-0.5">
                         {a.test_title} · Score: {a.obtained_marks}/{a.total_marks}
                       </p>
                     </div>
+
                     <Link href={`/admin/attempts/${a.id}`}>
-                      <Button variant="secondary" size="sm">Review</Button>
+                      <Button variant="secondary" size="sm">
+                        Review
+                      </Button>
                     </Link>
                   </Card>
                 ))}
               </div>
             </div>
           )}
+
+          {/* 🔥 ANALYTICS SECTION (CORRECT POSITION) */}
+          {attempts.length > 0 && (
+            <div>
+              <h2 className="font-display text-xl font-semibold mb-4">
+                Result Analytics
+              </h2>
+
+              <Card>
+                <AnalyticsDashboard attempts={attempts} />
+              </Card>
+            </div>
+          )}
+
         </div>
       </Layout>
     </>
